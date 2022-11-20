@@ -32,7 +32,14 @@ function verifyWebhookCaller(req, res, next) {
 }
 
 webserver.post("/", verifyWebhookCaller, async (request, response) => {
-    response.json();
+    const repoName = request.body.repository.name;
+    const repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
+    if (repoToUpdate) {
+        exec('cd ' + repoToUpdate + ' && git pull');
+    }
+    response.json({
+        status: "SUCCESS"
+    });
 });
 
 // ======== Error Handler ======== //
