@@ -3,6 +3,8 @@ const express = require('express');
 const crypto = require('crypto');
 const webserver = express();
 const { exec } = require("child_process");
+const util = require('util');
+const promisifiedExec = util.promisify(exec);
 // ======== For github ======== //
 const sigHeaderName = 'X-Hub-Signature-256'
 const sigHashAlg = 'sha256'
@@ -35,7 +37,7 @@ webserver.post("/", verifyWebhookCaller, async (request, response) => {
     const repoName = request.body.repository.name;
     const repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
     if (repoToUpdate) {
-        exec('cd ' + repoToUpdate + ' && git pull');
+        await promisifiedExec('cd ' + repoToUpdate + ' && git pull && pm2 restart all');
     }
     response.json({
         status: "SUCCESS"
