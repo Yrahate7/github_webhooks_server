@@ -2,7 +2,7 @@ const config = require('./config');
 const express = require('express');
 const crypto = require('crypto');
 const webserver = express();
-
+const { exec } = require("child_process");
 // ======== For github ======== //
 const sigHeaderName = 'X-Hub-Signature-256'
 const sigHashAlg = 'sha256'
@@ -32,12 +32,11 @@ function verifyWebhookCaller(req, res, next) {
 }
 
 webserver.post("/", verifyWebhookCaller, async (request, response) => {
-    console.log(request.body);
     response.json();
 });
 
 // ======== Error Handler ======== //
-app.use((err, req, res, next) => {
+webserver.use((err, req, res, next) => {
     if (err) console.error(err)
     res.status(403).send('Request body was not signed or verification failed')
 })
