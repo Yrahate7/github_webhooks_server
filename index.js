@@ -38,7 +38,7 @@ webserver.post("/", verifyWebhookCaller, async (request, response) => {
         const repoName = request.body.repository.name;
         const repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
         if (repoToUpdate) {
-            await promisifiedExec('cd ' + repoToUpdate + ' && git pull && pm2 restart all');
+            await promisifiedExec('cd ' + repoToUpdate + ' && git pull && pm2 restart all --update-env');
         }
         response.json({
             status: "SUCCESS"
