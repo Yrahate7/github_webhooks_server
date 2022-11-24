@@ -34,15 +34,31 @@ function verifyWebhookCaller(req, res, next) {
 }
 
 webserver.post("/", verifyWebhookCaller, async (request, response) => {
-    const repoName = request.body.repository.name;
-    const repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
-    if (repoToUpdate) {
-        await promisifiedExec('cd ' + repoToUpdate + ' && git pull && pm2 restart all');
+    try {
+        const repoName = request.body.repository.name;
+        const repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
+        if (repoToUpdate) {
+            await promisifiedExec('cd ' + repoToUpdate + ' && git pull && pm2 restart all');
+        }
+        response.json({
+            status: "SUCCESS"
+        });
+    } catch (error) {
+        response.json(error);
     }
-    response.json({
-        status: "SUCCESS"
-    });
 });
+
+
+webserver.get("/", verifyWebhookCaller, async (request, response) => {
+    try {
+        response.json({
+            status: "SUCCESS"
+        });
+    } catch (error) {
+        response.json(error);
+    }
+});
+
 
 // ======== Error Handler ======== //
 webserver.use((err, req, res, next) => {
