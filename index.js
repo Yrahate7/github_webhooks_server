@@ -44,11 +44,10 @@ webserver.post("/", verifyWebhookCaller, async (request, response) => {
         const repoName = request.body.repository.name;
         const repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
         if (repoToUpdate) {
-            await promisifiedExec('cd ' + repoToUpdate + ' && git pull && pm2 restart all --update-env');
+            await promisifiedExec('cd ' + repoToUpdate + ' && git pull && pm2 restart all');
+            return response.json({ status: "SUCCESS" });
         }
-        response.json({
-            status: "SUCCESS"
-        });
+        return response.json({ status: "SUCCESS" });
     } catch (error) {
         response.json(error);
     }
@@ -72,6 +71,6 @@ webserver.use((err, req, res, next) => {
     res.status(403).send('Request body was not signed or verification failed')
 })
 
-webserver.listen(config.PORT, () => {
+webserver.listen(config.PORT, async () => {
     console.log("Listening on port " + config.PORT);
 });
