@@ -24,13 +24,19 @@ function verifyWebhookCaller(req, res, next) {
     if (!req.rawBody) {
         return next('Request body empty')
     }
-    const sig = Buffer.from(req.get(sigHeaderName) || '', 'utf8')
-    const hmac = crypto.createHmac(sigHashAlg, config.WEBHOOK_SECRET);
-    const digest = Buffer.from(sigHashAlg + '=' + hmac.update(req.rawBody).digest('hex'), 'utf8')
-    if (sig.length !== digest.length || !crypto.timingSafeEqual(digest, sig)) {
-        return next(`Request body digest (${digest}) did not match ${sigHeaderName} (${sig})`)
+    if (config.VALIDATE_WEBHOOK) {
+        const sig = Buffer.from(req.get(sigHeaderName) || '', 'utf8')
+        const hmac = crypto.createHmac(sigHashAlg, config.WEBHOOK_SECRET);
+        const digest = Buffer.from(sigHashAlg + '=' + hmac.update(req.rawBody).digest('hex'), 'utf8')
+        if (sig.length !== digest.length || !crypto.timingSafeEqual(digest, sig)) {
+            return next(`Request body digest (${digest}) did not match ${sigHeaderName} (${sig})`)
+        } else {
+            return next();
+        }
+    } else {
+        return next();
     }
-    return next();
+
 }
 
 webserver.post("/", verifyWebhookCaller, async (request, response) => {
