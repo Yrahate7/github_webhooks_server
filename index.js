@@ -40,9 +40,10 @@ function verifyWebhookCaller(req, res, next) {
 }
 
 webserver.post("/", verifyWebhookCaller, async (request, response) => {
+    let repoToUpdate;
     try {
         const repoName = request.body.repository.name;
-        const repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
+        repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
         if (repoToUpdate) {
             response.json({ status: "SUCCESS" });
             await promisifiedExec('cd ' + repoToUpdate + ' &&  mkdir -p /tmp/ ' + repoToUpdate + ' && mv .env.production.local /tmp/' + repoToUpdate + ' && git reset --hard && git pull && mv /tmp/' + repoToUpdate + ' .env.production.local && yarn && pm2 restart all');
@@ -50,7 +51,10 @@ webserver.post("/", verifyWebhookCaller, async (request, response) => {
         }
         return response.json({ status: "SUCCESS" });
     } catch (error) {
-        response.json(error);
+        console.log(error);
+        if (!repoToUpdate) {
+            response.json(error);
+        }
     }
 });
 
