@@ -46,7 +46,9 @@ webserver.post("/", verifyWebhookCaller, async (request, response) => {
         repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
         if (repoToUpdate) {
             response.json({ status: "SUCCESS" });
-            await promisifiedExec('cd ' + repoToUpdate + " && rm -r /tmp/" + repoName +' &&  mkdir -p /tmp/' + repoName + ' && mv .env.production.local /tmp/' + repoName + ' && git reset --hard && git pull && mv /tmp/' + repoName + '/.env.production.local . && yarn && pm2 restart all');
+            console.log("Executing webhook for " + repoName);
+            await promisifiedExec('cd ' + repoToUpdate + " && rm -r /tmp/" + repoName + ' &&  mkdir -p /tmp/' + repoName + ' && mv .env.production.local /tmp/' + repoName + ' && git reset --hard && git pull && mv /tmp/' + repoName + '/.env.production.local . && yarn && pm2 restart all');
+            console.log("Success webhook for " + repoName);
             return;
         }
         return response.json({ status: "SUCCESS" });
