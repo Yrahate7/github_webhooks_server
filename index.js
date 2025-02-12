@@ -46,7 +46,7 @@ webserver.post("/", verifyWebhookCaller, async (request, response) => {
         repoToUpdate = config.REPOSITORIES_FULL_PATH.find(repoPath => repoPath.includes(repoName));
         if (repoToUpdate) {
             response.json({ status: "SUCCESS" });
-            await promisifiedExec('cd ' + repoToUpdate + ' &&  mkdir -p /tmp/ ' + repoToUpdate + ' && mv .env.production.local /tmp/' + repoToUpdate + ' && git reset --hard && git pull && mv /tmp/' + repoToUpdate + '/.env.production.local . && yarn && pm2 restart all');
+            await promisifiedExec('cd ' + repoToUpdate + ' &&  mkdir -p /tmp/' + repoName + ' && mv .env.production.local /tmp/' + repoName + ' && git reset --hard && git pull && mv /tmp/' + repoName + '/.env.production.local . && yarn && pm2 restart all');
             return;
         }
         return response.json({ status: "SUCCESS" });
